@@ -1,18 +1,18 @@
 <?php
 
-namespace yii1tech\ar\softdelete\test\data;
+namespace yii1tech\model\typecast\test\data;
 
 use CActiveRecord;
-use CDbException;
-use yii1tech\model\typecast\AttributeTypecastBehavior;
 
 /**
  * @property int $id
  * @property int $category_id
  * @property string $name
- * @property bool $is_deleted
+ * @property float $price
+ * @property bool $is_active
  * @property int $created_at
- * @property int $created_date
+ * @property string $created_date
+ * @property string $callback
  */
 class Item extends CActiveRecord
 {
@@ -27,20 +27,8 @@ class Item extends CActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function tableName()
+    public function tableName(): string
     {
         return 'item';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function behaviors()
-    {
-        return [
-            'softDeleteBehavior' => [
-                'class' => AttributeTypecastBehavior::class,
-            ],
-        ];
     }
 }

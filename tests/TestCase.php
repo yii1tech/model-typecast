@@ -5,6 +5,7 @@ namespace yii1tech\model\typecast\test;
 use CConsoleApplication;
 use CMap;
 use Yii;
+use yii1tech\model\typecast\AttributeTypecastBehavior;
 
 class TestCase extends \PHPUnit\Framework\TestCase
 {
@@ -25,6 +26,8 @@ class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected function tearDown(): void
     {
+        AttributeTypecastBehavior::clearAutoDetectedAttributeTypes();
+
         $this->destroyApplication();
 
         parent::tearDown();
@@ -76,9 +79,11 @@ class TestCase extends \PHPUnit\Framework\TestCase
                 'id' => 'pk',
                 'category_id' => 'integer',
                 'name' => 'string',
-                'is_deleted' => 'boolean DEFAULT 0',
+                'price' => 'float',
+                'is_active' => 'boolean DEFAULT 0',
                 'created_at' => 'integer',
                 'created_date' => 'datetime',
+                'callback' => 'string',
             ]);
 
         // Data :
@@ -88,14 +93,14 @@ class TestCase extends \PHPUnit\Framework\TestCase
             [
                 'category_id' => 1,
                 'name' => 'item1',
-                'is_deleted' => 0,
+                'is_active' => 0,
                 'created_at' => time(),
                 'created_date' => date('Y-m-d H:i:s'),
             ],
             [
                 'category_id' => 2,
                 'name' => 'item2',
-                'is_deleted' => 1,
+                'is_active' => 1,
                 'created_at' => time(),
                 'created_date' => date('Y-m-d H:i:s'),
             ],

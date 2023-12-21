@@ -5,13 +5,15 @@ namespace yii1tech\model\typecast;
 use CActiveRecord;
 use CBehavior;
 use CBooleanValidator;
+use CEvent;
 use CModelEvent;
 use CNumberValidator;
 use CStringValidator;
 use InvalidArgumentException;
 
 /**
- * @property \CModel|CActiveRecord $owner The owner component that this behavior is attached to.
+ * @property \CModel|\CActiveRecord $owner The owner component that this behavior is attached to.
+ * @property array $attributeTypes
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 1.0
@@ -78,10 +80,10 @@ class AttributeTypecastBehavior extends CBehavior
      * the database (after find or refresh).
      * This option may be disabled in order to achieve better performance.
      * For example, in case of [[\yii\db\ActiveRecord]] usage, typecasting after find
-     * will grant no benefit in most cases an thus can be disabled.
+     * will grant no benefit in most cases and thus can be disabled.
      * Note that changing this option value will have no effect after this behavior has been attached to the model.
      */
-    public $typecastAfterFind = false;
+    public $typecastAfterFind = true;
 
     /**
      * @var array internal static cache for auto detected [[attributeTypes]] values
@@ -250,9 +252,9 @@ class AttributeTypecastBehavior extends CBehavior
 
     /**
      * Handles owner 'afterValidate' event, ensuring attribute typecasting.
-     * @param \CModelEvent $event event instance.
+     * @param \CEvent $event event instance.
      */
-    public function afterValidate(CModelEvent $event): void
+    public function afterValidate(CEvent $event): void
     {
         if (!$this->owner->hasErrors()) {
             $this->typecastAttributes();
@@ -270,18 +272,18 @@ class AttributeTypecastBehavior extends CBehavior
 
     /**
      * Handles owner 'afterSave' event, ensuring attribute typecasting.
-     * @param \CModelEvent $event event instance.
+     * @param \CEvent $event event instance.
      */
-    public function afterSave(CModelEvent $event): void
+    public function afterSave(CEvent $event): void
     {
         $this->typecastAttributes();
     }
 
     /**
      * Handles owner 'afterFind' event, ensuring attribute typecasting.
-     * @param \CModelEvent $event event instance.
+     * @param \CEvent $event event instance.
      */
-    public function afterFind(CModelEvent $event): void
+    public function afterFind(CEvent $event): void
     {
         $this->typecastAttributes();
     }
