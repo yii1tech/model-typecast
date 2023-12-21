@@ -1,0 +1,39 @@
+{
+    "name": "yii1tech/model-typecast",
+    "description": "Allows typecast for Model and ActiveRecord attributes in Yii1",
+    "keywords": ["yii1", "model", "active", "record", "typecast"],
+    "license": "BSD-3-Clause",
+    "support": {
+        "issues": "https://github.com/yii1tech/model-typecast/issues",
+        "wiki": "https://github.com/yii1tech/model-typecast/wiki",
+        "source": "https://github.com/yii1tech/model-typecast"
+    },
+    "authors": [
+        {
+            "name": "Paul Klimov",
+            "email": "klimov.paul@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.1",
+        "yiisoft/yii": "~1.1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.0 || ^7.0 || ^8.0 || ^9.3 || ^10.0.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "yii1tech\\model\\typecast\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "yii1tech\\model\\typecast\\test\\": "tests"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
+    }
+}
