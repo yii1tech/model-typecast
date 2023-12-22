@@ -244,4 +244,24 @@ class AttributeTypecastBehaviorTest extends TestCase
         $this->assertSame(5.5, $model->price);
         $this->assertSame(true, $model->isAccepted);
     }
+
+    /**
+     * @depends testTypecast
+     */
+    public function testDetectedAttributeTypesFromSchema(): void
+    {
+        $baseBehavior = new AttributeTypecastBehavior();
+        $baseBehavior->attributeTypes = null;
+
+        $model = new Item();
+        $baseBehavior->attach($model);
+
+        $this->assertNotEmpty($baseBehavior->attributeTypes);
+
+        $this->assertSame(AttributeTypecastBehavior::TYPE_INTEGER, $baseBehavior->attributeTypes['category_id']);
+        $this->assertSame(AttributeTypecastBehavior::TYPE_STRING, $baseBehavior->attributeTypes['name']);
+        $this->assertSame(AttributeTypecastBehavior::TYPE_FLOAT, $baseBehavior->attributeTypes['price']);
+        $this->assertSame(AttributeTypecastBehavior::TYPE_DATETIME, $baseBehavior->attributeTypes['created_date']);
+        $this->assertSame(AttributeTypecastBehavior::TYPE_ARRAY_OBJECT, $baseBehavior->attributeTypes['data_array_object']);
+    }
 }
