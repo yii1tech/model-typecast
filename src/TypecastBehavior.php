@@ -117,10 +117,12 @@ class TypecastBehavior extends CBehavior
     const TYPE_TIMESTAMP = 'timestamp';
     /**
      * Converts ISO datetime string into {@see \Carbon\Carbon} and vice versa.
+     * @see https://packagist.org/packages/nesbot/carbon
      */
     const TYPE_DATETIME_CARBON = 'datetime-carbon';
     /**
      * Converts integer Unix timestamp into {@see \Carbon\Carbon} and vice versa.
+     * @see https://packagist.org/packages/nesbot/carbon
      */
     const TYPE_TIMESTAMP_CARBON = 'timestamp-carbon';
 
@@ -152,8 +154,7 @@ class TypecastBehavior extends CBehavior
     public $skipOnNull = true;
     /**
      * @var bool whether to perform typecasting after owner model validation.
-     * Note that typecasting will be performed only if validation was successful, e.g.
-     * owner model has no errors.
+     * Note that typecasting will be performed only if validation was successful, e.g. owner model has no errors.
      * Note that changing this option value will have no effect after this behavior has been attached to the model.
      */
     public $typecastAfterValidate = true;
@@ -162,7 +163,6 @@ class TypecastBehavior extends CBehavior
      * This option may be disabled in order to achieve better performance.
      * For example, in case of {@see \CActiveRecord} usage, typecasting before save
      * will grant no benefit and thus can be disabled.
-     * Note that changing this option value will have no effect after this behavior has been attached to the model.
      */
     public $typecastBeforeSave = false;
     /**
@@ -170,7 +170,6 @@ class TypecastBehavior extends CBehavior
      * This option may be disabled in order to achieve better performance.
      * For example, in case of {@see \CActiveRecord} usage, typecasting after save
      * will grant no benefit and thus can be disabled.
-     * Note that changing this option value will have no effect after this behavior has been attached to the model.
      * @since 2.0.14
      */
     public $typecastAfterSave = true;
