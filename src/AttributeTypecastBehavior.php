@@ -233,7 +233,7 @@ class AttributeTypecastBehavior extends CBehavior
             }
 
             if ($type !== null) {
-                $attributeTypes += array_fill_keys($validator->getAttributeNames(), $type);
+                $attributeTypes += array_fill_keys($validator->attributes, $type);
             }
         }
 

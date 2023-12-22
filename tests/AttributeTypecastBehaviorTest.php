@@ -5,6 +5,7 @@ namespace yii1tech\model\typecast\test;
 use ArrayObject;
 use DateTime;
 use yii1tech\model\typecast\AttributeTypecastBehavior;
+use yii1tech\model\typecast\test\data\FormWithTypecast;
 use yii1tech\model\typecast\test\data\Item;
 use yii1tech\model\typecast\test\data\ItemWithTypecast;
 
@@ -224,5 +225,23 @@ class AttributeTypecastBehaviorTest extends TestCase
 
         $model = ItemWithTypecast::model()->findByPk($model->id);
         $this->assertSame($array, $model->data_array_object->getArrayCopy());
+    }
+
+    /**
+     * @depends testTypecast
+     */
+    public function testDetectedAttributeTypesFromRules(): void
+    {
+        $model = new FormWithTypecast();
+        $model->name = 123;
+        $model->amount = '100';
+        $model->price = '5.5';
+        $model->isAccepted = '1';
+
+        $this->assertTrue($model->validate());
+        $this->assertSame('123', $model->name);
+        $this->assertSame(100, $model->amount);
+        $this->assertSame(5.5, $model->price);
+        $this->assertSame(true, $model->isAccepted);
     }
 }
