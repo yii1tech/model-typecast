@@ -37,6 +37,10 @@ class ItemWithTypecast extends Item
                     'callback' => function ($value) {
                         return 'callback: ' . $value;
                     },
+                    'created_date' => AttributeTypecastBehavior::TYPE_DATETIME,
+                    'created_timestamp' => AttributeTypecastBehavior::TYPE_TIMESTAMP,
+                    'data_array' => AttributeTypecastBehavior::TYPE_ARRAY,
+                    'data_array_object' => AttributeTypecastBehavior::TYPE_ARRAY_OBJECT,
                 ],
             ],
         ];

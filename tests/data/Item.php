@@ -10,9 +10,11 @@ use CActiveRecord;
  * @property string $name
  * @property float $price
  * @property bool $is_active
- * @property int $created_at
+ * @property int $created_timestamp
  * @property string $created_date
  * @property string $callback
+ * @property array|string $data_array
+ * @property \ArrayObject|string $data_array_object
  */
 class Item extends CActiveRecord
 {

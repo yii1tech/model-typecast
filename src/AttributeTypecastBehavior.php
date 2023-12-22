@@ -13,7 +13,6 @@ use InvalidArgumentException;
 
 /**
  * @property \CModel|\CActiveRecord $owner The owner component that this behavior is attached to.
- * @property array $attributeTypes
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 1.0
@@ -24,9 +23,13 @@ class AttributeTypecastBehavior extends CBehavior
     const TYPE_FLOAT = 'float';
     const TYPE_BOOLEAN = 'boolean';
     const TYPE_STRING = 'string';
+    const TYPE_ARRAY = 'array';
+    const TYPE_ARRAY_OBJECT = 'array-object';
+    const TYPE_DATETIME = 'datetime';
+    const TYPE_TIMESTAMP = 'timestamp';
 
     /**
-     * @var array|null attribute typecast map in format: attributeName => type.
+     * @var array<string, string|callable>|null attribute typecast map in format: attributeName => type.
      * Type can be set via PHP callable, which accept raw value as an argument and should return
      * typecast result.
      * For example:
@@ -44,7 +47,7 @@ class AttributeTypecastBehavior extends CBehavior
      *
      * If not set, attribute type map will be composed automatically from the owner validation rules.
      */
-    private $_attributeTypes;
+    public $attributeTypes;
     /**
      * @var bool whether to skip typecasting of `null` values.
      * If enabled attribute value which equals to `null` will not be type-casted (e.g. `null` remains `null`),
@@ -74,7 +77,7 @@ class AttributeTypecastBehavior extends CBehavior
      * Note that changing this option value will have no effect after this behavior has been attached to the model.
      * @since 2.0.14
      */
-    public $typecastAfterSave = false;
+    public $typecastAfterSave = true;
     /**
      * @var bool whether to perform typecasting after retrieving owner model data from
      * the database (after find or refresh).
@@ -86,31 +89,26 @@ class AttributeTypecastBehavior extends CBehavior
     public $typecastAfterFind = true;
 
     /**
-     * @var array internal static cache for auto detected [[attributeTypes]] values
+     * @var array<string, mixed> stashed raw attributes, used to transfer raw non-scalar values from {@see beforeSave()} to {@see afterSave()}.
+     */
+    private $_stashedAttributes = [];
+
+    /**
+     * @var array<string, array> internal static cache for auto detected [[attributeTypes]] values
      * in format: ownerClassName => attributeTypes
      */
     private static $autoDetectedAttributeTypes = [];
 
     /**
-     * @return array
+     * {@inheritdoc}
      */
-    public function getAttributeTypes(): array
+    public function attach($owner): void
     {
-        if ($this->_attributeTypes === null) {
-            $this->_attributeTypes = $this->detectAttributeTypes();
+        parent::attach($owner);
+
+        if ($this->attributeTypes === null) {
+            $this->attributeTypes = $this->detectAttributeTypes();
         }
-
-        return $this->_attributeTypes;
-    }
-
-    /**
-     * @param array $attributeTypes
-     */
-    public function setAttributeTypes(array $attributeTypes): self
-    {
-        $this->_attributeTypes = $attributeTypes;
-
-        return $this;
     }
 
     protected function detectAttributeTypes(): array
@@ -173,26 +171,48 @@ class AttributeTypecastBehavior extends CBehavior
      */
     protected function typecastValue($value, $type)
     {
-        if (is_scalar($type)) {
-            if (is_object($value) && method_exists($value, '__toString')) {
-                $value = $value->__toString();
-            }
-
-            switch ($type) {
-                case self::TYPE_INTEGER:
-                    return (int) $value;
-                case self::TYPE_FLOAT:
-                    return (float) $value;
-                case self::TYPE_BOOLEAN:
-                    return (bool) $value;
-                case self::TYPE_STRING:
-                    return (string) $value;
-                default:
-                    throw new InvalidArgumentException("Unsupported type '{$type}'");
-            }
+        if (!is_scalar($type)) {
+            return call_user_func($type, $value);
         }
 
-        return call_user_func($type, $value);
+        switch ($type) {
+            case self::TYPE_INTEGER:
+            case 'int':
+                return (int) $value;
+            case self::TYPE_FLOAT:
+                return (float) $value;
+            case self::TYPE_BOOLEAN:
+            case 'bool':
+                return (bool) $value;
+            case self::TYPE_STRING:
+                return (string) $value;
+            case self::TYPE_ARRAY:
+                if ($value === null || is_iterable($value)) {
+                    return $value;
+                }
+
+                return json_decode($value, true);
+            case self::TYPE_ARRAY_OBJECT:
+                if ($value === null || is_iterable($value)) {
+                    return $value;
+                }
+
+                return new \ArrayObject(json_decode($value, true));
+            case self::TYPE_DATETIME:
+                if ($value === null || $value instanceof \DateTime) {
+                    return $value;
+                }
+
+                return \DateTime::createFromFormat('Y-m-d H:i:s', (string) $value);
+            case self::TYPE_TIMESTAMP:
+                if ($value === null || $value instanceof \DateTime) {
+                    return $value;
+                }
+
+                return (new \DateTime())->setTimestamp((int) $value);
+            default:
+                throw new InvalidArgumentException("Unsupported attribute type '{$type}'");
+        }
     }
 
     /**
@@ -220,6 +240,76 @@ class AttributeTypecastBehavior extends CBehavior
         return $attributeTypes;
     }
 
+    /**
+     * Stashes original raw value of attribute for the future restoration.
+     *
+     * @param string $name attribute name.
+     * @param mixed $value attribute raw value.
+     * @return void
+     */
+    private function stashAttribute(string $name, $value): void
+    {
+        $this->_stashedAttributes[$name] = $value;
+    }
+
+    /**
+     * Applies all stashed attribute values to the owner.
+     *
+     * @return void
+     */
+    private function applyStashedAttributes(): void
+    {
+        foreach ($this->_stashedAttributes as $name => $value) {
+            $this->owner->setAttribute($name, $value);
+            unset($this->_stashedAttributes[$name]);
+        }
+    }
+
+    /**
+     * Performs typecast for attributes values in the way they are suitable for the saving in database.
+     * E.g. convert objects and arrays to scalars.
+     *
+     * @return void
+     */
+    protected function typecastAttributesForSaving(): void
+    {
+        foreach ($this->owner->getAttributes() as $name => $value) {
+            if ($value === null || is_scalar($value)) {
+                continue;
+            }
+
+            if ($value instanceof \CDbExpression) {
+                continue;
+            }
+
+            $this->stashAttribute($name, $value);
+
+            if (is_array($value) || $value instanceof \JsonSerializable) {
+                $this->owner->setAttribute($name, json_encode($value));
+
+                continue;
+            }
+
+            if ($value instanceof \DateTime) {
+                if (isset($this->attributeTypes[$name]) && $this->attributeTypes[$name] === self::TYPE_TIMESTAMP) {
+                    $this->owner->setAttribute($name, $value->getTimestamp());
+                } else {
+                    $this->owner->setAttribute($name, $value->format('Y-m-d H:i:s'));
+                }
+
+                continue;
+            }
+
+            if ($value instanceof \Traversable) {
+                $this->owner->setAttribute($name, json_encode(iterator_to_array($value)));
+
+                continue;
+            }
+
+            $this->owner->setAttribute($name, (string) $value);
+        }
+    }
+
     // Event Handlers:
 
     /**
@@ -234,13 +324,8 @@ class AttributeTypecastBehavior extends CBehavior
         }
 
         if ($this->getOwner() instanceof CActiveRecord) {
-            if ($this->typecastBeforeSave) {
-                $events['onBeforeSave'] = 'beforeSave';
-            }
-
-            if ($this->typecastAfterSave) {
-                $events['onAfterSave'] = 'afterSave';
-            }
+            $events['onBeforeSave'] = 'beforeSave';
+            $events['onAfterSave'] = 'afterSave';
 
             if ($this->typecastAfterFind) {
                 $events['onAfterFind'] = 'afterFind';
@@ -267,7 +352,11 @@ class AttributeTypecastBehavior extends CBehavior
      */
     public function beforeSave(CModelEvent $event): void
     {
-        $this->typecastAttributes();
+        if ($this->typecastBeforeSave) {
+            $this->typecastAttributes();
+        }
+
+        $this->typecastAttributesForSaving();
     }
 
     /**
@@ -276,7 +365,11 @@ class AttributeTypecastBehavior extends CBehavior
      */
     public function afterSave(CEvent $event): void
     {
-        $this->typecastAttributes();
+        $this->applyStashedAttributes();
+
+        if ($this->typecastAfterSave) {
+            $this->typecastAttributes();
+        }
     }
 
     /**

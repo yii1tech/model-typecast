@@ -81,9 +81,11 @@ class TestCase extends \PHPUnit\Framework\TestCase
                 'name' => 'string',
                 'price' => 'float',
                 'is_active' => 'boolean DEFAULT 0',
-                'created_at' => 'integer',
+                'created_timestamp' => 'integer',
                 'created_date' => 'datetime',
                 'callback' => 'string',
+                'data_array' => 'json',
+                'data_array_object' => 'json',
             ]);
 
         // Data :
@@ -94,14 +96,14 @@ class TestCase extends \PHPUnit\Framework\TestCase
                 'category_id' => 1,
                 'name' => 'item1',
                 'is_active' => 0,
-                'created_at' => time(),
+                'created_timestamp' => time(),
                 'created_date' => date('Y-m-d H:i:s'),
             ],
             [
                 'category_id' => 2,
                 'name' => 'item2',
                 'is_active' => 1,
-                'created_at' => time(),
+                'created_timestamp' => time(),
                 'created_date' => date('Y-m-d H:i:s'),
             ],
         ])->execute();

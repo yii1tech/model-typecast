@@ -2,6 +2,8 @@
 
 namespace yii1tech\model\typecast\test;
 
+use ArrayObject;
+use DateTime;
 use yii1tech\model\typecast\AttributeTypecastBehavior;
 use yii1tech\model\typecast\test\data\Item;
 use yii1tech\model\typecast\test\data\ItemWithTypecast;
@@ -150,5 +152,77 @@ class AttributeTypecastBehaviorTest extends TestCase
 
         $model->refresh();
         $this->assertSame(58, $model->category_id);
+    }
+
+    /**
+     * @depends testTypecast
+     */
+    public function testDateTime(): void
+    {
+        $createdDateTime = new DateTime('yesterday');
+
+        $model = new ItemWithTypecast();
+        $model->created_date = $createdDateTime;
+        $model->created_timestamp = $createdDateTime;
+        $model->save(false);
+
+        $this->assertSame($createdDateTime, $model->created_date);
+        $this->assertSame($createdDateTime, $model->created_timestamp);
+
+        $model = ItemWithTypecast::model()->findByPk($model->id);
+
+        $this->assertSame($createdDateTime->getTimestamp(), $model->created_date->getTimestamp());
+        $this->assertSame($createdDateTime->getTimestamp(), $model->created_timestamp->getTimestamp());
+    }
+
+    /**
+     * @depends testTypecast
+     */
+    public function testArray(): void
+    {
+        $array = [
+            'foo' => 'bar',
+        ];
+
+        $model = new ItemWithTypecast();
+        $model->data_array = $array;
+        $model->save(false);
+
+        $this->assertSame($array, $model->data_array);
+
+        $model = ItemWithTypecast::model()->findByPk($model->id);
+
+        $this->assertSame($array, $model->data_array);
+    }
+
+    /**
+     * @depends testTypecast
+     */
+    public function testArrayObject(): void
+    {
+        $array = [
+            'foo' => 'bar',
+        ];
+        $arrayObject = new ArrayObject($array);
+
+        $model = new ItemWithTypecast();
+        $model->data_array_object = $arrayObject;
+        $model->save(false);
+
+        $this->assertSame($arrayObject, $model->data_array_object);
+
+        $model = ItemWithTypecast::model()->findByPk($model->id);
+
+        $this->assertNotSame($arrayObject, $model->data_array_object);
+        $this->assertSame($arrayObject->getArrayCopy(), $model->data_array_object->getArrayCopy());
+
+        $model = new ItemWithTypecast();
+        $model->data_array_object = $array;
+        $model->save(false);
+
+        $this->assertSame($array, $model->data_array_object);
+
+        $model = ItemWithTypecast::model()->findByPk($model->id);
+        $this->assertSame($array, $model->data_array_object->getArrayCopy());
     }
 }
