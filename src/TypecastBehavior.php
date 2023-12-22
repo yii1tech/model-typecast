@@ -452,6 +452,16 @@ class TypecastBehavior extends CBehavior
     }
 
     /**
+     * Clears all stashed attributes.
+     *
+     * @return void
+     */
+    private function clearStashedAttributes(): void
+    {
+        $this->_stashedAttributes = [];
+    }
+
+    /**
      * Performs typecast for attributes values in the way they are suitable for the saving in database.
      * E.g. convert objects and arrays to scalars.
      *
@@ -459,6 +469,8 @@ class TypecastBehavior extends CBehavior
      */
     protected function typecastAttributesForSaving(): void
     {
+        $this->clearStashedAttributes();
+
         foreach ($this->owner->getAttributes() as $name => $value) {
             if ($value === null || is_scalar($value)) {
                 continue;
