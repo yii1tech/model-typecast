@@ -2,12 +2,12 @@
 
 namespace yii1tech\model\typecast\test\data;
 
-use yii1tech\model\typecast\AttributeTypecastBehavior;
+use yii1tech\model\typecast\TypecastBehavior;
 
 /**
- * @mixin \yii1tech\model\typecast\AttributeTypecastBehavior
+ * @mixin \yii1tech\model\typecast\TypecastBehavior
  *
- * @property-read \yii1tech\model\typecast\AttributeTypecastBehavior $typecastBehavior
+ * @property-read \yii1tech\model\typecast\TypecastBehavior $typecastBehavior
  */
 class ItemWithTypecast extends Item
 {
@@ -26,21 +26,21 @@ class ItemWithTypecast extends Item
     {
         return [
             'typecastBehavior' => [
-                'class' => AttributeTypecastBehavior::class,
+                'class' => TypecastBehavior::class,
                 'typecastBeforeSave' => true,
                 'typecastAfterFind' => true,
                 'attributeTypes' => [
-                    'name' => AttributeTypecastBehavior::TYPE_STRING,
-                    'category_id' => AttributeTypecastBehavior::TYPE_INTEGER,
-                    'price' => AttributeTypecastBehavior::TYPE_FLOAT,
-                    'is_active' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                    'name' => TypecastBehavior::TYPE_STRING,
+                    'category_id' => TypecastBehavior::TYPE_INTEGER,
+                    'price' => TypecastBehavior::TYPE_FLOAT,
+                    'is_active' => TypecastBehavior::TYPE_BOOLEAN,
                     'callback' => function ($value) {
                         return 'callback: ' . $value;
                     },
-                    'created_date' => AttributeTypecastBehavior::TYPE_DATETIME,
-                    'created_timestamp' => AttributeTypecastBehavior::TYPE_TIMESTAMP,
-                    'data_array' => AttributeTypecastBehavior::TYPE_ARRAY,
-                    'data_array_object' => AttributeTypecastBehavior::TYPE_ARRAY_OBJECT,
+                    'created_date' => TypecastBehavior::TYPE_DATETIME,
+                    'created_timestamp' => TypecastBehavior::TYPE_TIMESTAMP,
+                    'data_array' => TypecastBehavior::TYPE_ARRAY,
+                    'data_array_object' => TypecastBehavior::TYPE_ARRAY_OBJECT,
                 ],
             ],
         ];

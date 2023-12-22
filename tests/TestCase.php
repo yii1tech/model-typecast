@@ -5,7 +5,7 @@ namespace yii1tech\model\typecast\test;
 use CConsoleApplication;
 use CMap;
 use Yii;
-use yii1tech\model\typecast\AttributeTypecastBehavior;
+use yii1tech\model\typecast\TypecastBehavior;
 
 class TestCase extends \PHPUnit\Framework\TestCase
 {
@@ -26,7 +26,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected function tearDown(): void
     {
-        AttributeTypecastBehavior::clearAutoDetectedAttributeTypes();
+        TypecastBehavior::clearAutoDetectedAttributeTypes();
 
         $this->destroyApplication();
 

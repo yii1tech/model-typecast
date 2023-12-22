@@ -15,20 +15,103 @@ use InvalidArgumentException;
 use Yii;
 
 /**
+ * TypecastBehavior provides an ability of automatic model attribute typecasting.
+ *
+ * This behavior should be attached to {@see \CModel} or {@see \CActiveRecord} descendant.
+ *
+ * For example:
+ *
+ * ```php
+ * use yii1tech\model\typecast\TypecastBehavior;
+ *
+ * class Item extends CActiveRecord
+ * {
+ *     public function behaviors()
+ *     {
+ *         return [
+ *             'typecastBehavior' => [
+ *                 'class' => TypecastBehavior::class,
+ *                 'attributeTypes' => [
+ *                     'amount' => TypecastBehavior::TYPE_INTEGER,
+ *                     'price' => TypecastBehavior::TYPE_FLOAT,
+ *                     'is_active' => TypecastBehavior::TYPE_BOOLEAN,
+ *                     'created_at' => TypecastBehavior::TYPE_DATETIME,
+ *                     'json_data' => TypecastBehavior::TYPE_ARRAY_OBJECT,
+ *                 ],
+ *                 'typecastAfterValidate' => true,
+ *                 'typecastBeforeSave' => false,
+ *                 'typecastAfterSave' => true,
+ *                 'typecastAfterFind' => true,
+ *             ],
+ *         ];
+ *     }
+ *
+ *     // ...
+ * }
+ * ```
+ *
+ * Tip: you may left {@see $attributeTypes} blank - in this case its value will be detected
+ * automatically based on owner DB table schema, or validation rules.
+ *
+ * Note: you can manually trigger attribute typecasting anytime invoking {@see typecastAttributes()} method:
+ *
+ * ```php
+ * $model = new Item();
+ * $model->price = '38.5';
+ * $model->is_active = 1;
+ * $model->typecastAttributes();
+ * ```
+ *
+ * This behavior allows automatic conversion of {@see \DateTime} instances into ISO datetime string, and array into JSON string
+ * on model saving. For example:
+ *
+ * ```php
+ * $model = new Item();
+ * $model->created_at = new DateTime('now'); // will be saved in DB as '2023-12-22 10:14:17'
+ * $model->json_data = [ // will be saved in DB as '{foo: "bar"}'
+ *     'foo' => 'bar',
+ * ];
+ * $model->save();
+ * ```
+ *
  * @property \CModel|\CActiveRecord $owner The owner component that this behavior is attached to.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 1.0
  */
-class AttributeTypecastBehavior extends CBehavior
+class TypecastBehavior extends CBehavior
 {
+    /**
+     * Converts attribute to `int`.
+     */
     const TYPE_INTEGER = 'integer';
+    /**
+     * Converts attribute to `float`.
+     */
     const TYPE_FLOAT = 'float';
+    /**
+     * Converts attribute to `bool`.
+     */
     const TYPE_BOOLEAN = 'boolean';
+    /**
+     * Converts attribute to `string`.
+     */
     const TYPE_STRING = 'string';
+    /**
+     * Converts JSON to array and vice versa.
+     */
     const TYPE_ARRAY = 'array';
+    /**
+     * Converts JSON to {@see \ArrayObject} and vice versa.
+     */
     const TYPE_ARRAY_OBJECT = 'array-object';
+    /**
+     * Converts ISO datetime string into {@see \DateTime} and vice versa.
+     */
     const TYPE_DATETIME = 'datetime';
+    /**
+     * Converts integer Unix timestamp into {@see \DateTime} and vice versa.
+     */
     const TYPE_TIMESTAMP = 'timestamp';
 
     /**
@@ -54,7 +137,7 @@ class AttributeTypecastBehavior extends CBehavior
     /**
      * @var bool whether to skip typecasting of `null` values.
      * If enabled attribute value which equals to `null` will not be type-casted (e.g. `null` remains `null`),
-     * otherwise it will be converted according to the type configured at [[attributeTypes]].
+     * otherwise it will be converted according to the type configured at {@see attributeTypes}.
      */
     public $skipOnNull = true;
     /**
@@ -98,7 +181,7 @@ class AttributeTypecastBehavior extends CBehavior
 
     /**
      * @var array<string, array> internal static cache for auto detected {@see $attributeTypes} values
-     * in format: ownerClassName => attributeTypes
+     * in format: `ownerClassName => attributeTypes`.
      */
     private static $autoDetectedAttributeTypes = [];
 
@@ -201,13 +284,13 @@ class AttributeTypecastBehavior extends CBehavior
             case self::TYPE_STRING:
                 return (string) $value;
             case self::TYPE_ARRAY:
-                if ($value === null || is_iterable($value)) {
+                if (empty($value) || is_iterable($value)) {
                     return $value;
                 }
 
                 return json_decode($value, true);
             case self::TYPE_ARRAY_OBJECT:
-                if ($value === null || is_iterable($value)) {
+                if (empty($value) || is_iterable($value)) {
                     return $value;
                 }
 

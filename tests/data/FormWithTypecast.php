@@ -3,7 +3,7 @@
 namespace yii1tech\model\typecast\test\data;
 
 use CFormModel;
-use yii1tech\model\typecast\AttributeTypecastBehavior;
+use yii1tech\model\typecast\TypecastBehavior;
 
 class FormWithTypecast extends CFormModel
 {
@@ -35,7 +35,7 @@ class FormWithTypecast extends CFormModel
     {
         return [
             'typecastBehavior' => [
-                'class' => AttributeTypecastBehavior::class,
+                'class' => TypecastBehavior::class,
                 'attributeTypes' => null,
             ],
         ];

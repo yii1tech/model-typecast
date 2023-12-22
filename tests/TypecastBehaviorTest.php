@@ -4,12 +4,12 @@ namespace yii1tech\model\typecast\test;
 
 use ArrayObject;
 use DateTime;
-use yii1tech\model\typecast\AttributeTypecastBehavior;
+use yii1tech\model\typecast\TypecastBehavior;
 use yii1tech\model\typecast\test\data\FormWithTypecast;
 use yii1tech\model\typecast\test\data\Item;
 use yii1tech\model\typecast\test\data\ItemWithTypecast;
 
-class AttributeTypecastBehaviorTest extends TestCase
+class TypecastBehaviorTest extends TestCase
 {
     public function testTypecast(): void
     {
@@ -94,7 +94,7 @@ class AttributeTypecastBehaviorTest extends TestCase
      */
     public function testSaveEvents()
     {
-        $baseBehavior = new AttributeTypecastBehavior();
+        $baseBehavior = new TypecastBehavior();
         $baseBehavior->attributeTypes = [
             'callback' => function ($value) {
                 return 'callback: ' . $value;
@@ -250,7 +250,7 @@ class AttributeTypecastBehaviorTest extends TestCase
      */
     public function testDetectedAttributeTypesFromSchema(): void
     {
-        $baseBehavior = new AttributeTypecastBehavior();
+        $baseBehavior = new TypecastBehavior();
         $baseBehavior->attributeTypes = null;
 
         $model = new Item();
@@ -258,10 +258,10 @@ class AttributeTypecastBehaviorTest extends TestCase
 
         $this->assertNotEmpty($baseBehavior->attributeTypes);
 
-        $this->assertSame(AttributeTypecastBehavior::TYPE_INTEGER, $baseBehavior->attributeTypes['category_id']);
-        $this->assertSame(AttributeTypecastBehavior::TYPE_STRING, $baseBehavior->attributeTypes['name']);
-        $this->assertSame(AttributeTypecastBehavior::TYPE_FLOAT, $baseBehavior->attributeTypes['price']);
-        $this->assertSame(AttributeTypecastBehavior::TYPE_DATETIME, $baseBehavior->attributeTypes['created_date']);
-        $this->assertSame(AttributeTypecastBehavior::TYPE_ARRAY_OBJECT, $baseBehavior->attributeTypes['data_array_object']);
+        $this->assertSame(TypecastBehavior::TYPE_INTEGER, $baseBehavior->attributeTypes['category_id']);
+        $this->assertSame(TypecastBehavior::TYPE_STRING, $baseBehavior->attributeTypes['name']);
+        $this->assertSame(TypecastBehavior::TYPE_FLOAT, $baseBehavior->attributeTypes['price']);
+        $this->assertSame(TypecastBehavior::TYPE_DATETIME, $baseBehavior->attributeTypes['created_date']);
+        $this->assertSame(TypecastBehavior::TYPE_ARRAY_OBJECT, $baseBehavior->attributeTypes['data_array_object']);
     }
 }
