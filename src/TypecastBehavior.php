@@ -32,6 +32,7 @@ use Yii;
  *             'typecastBehavior' => [
  *                 'class' => TypecastBehavior::class,
  *                 'attributeTypes' => [
+ *                     'id' => TypecastBehavior::TYPE_INTEGER,
  *                     'amount' => TypecastBehavior::TYPE_INTEGER,
  *                     'price' => TypecastBehavior::TYPE_FLOAT,
  *                     'is_active' => TypecastBehavior::TYPE_BOOLEAN,
@@ -50,8 +51,8 @@ use Yii;
  * }
  * ```
  *
- * Tip: you may left {@see $attributeTypes} blank - in this case its value will be detected
- * automatically based on owner DB table schema, or validation rules.
+ * Tip: you may leave {@see $attributeTypes} blank - in this case its value will be detected
+ * automatically: for ActiveRecord - based on owner DB table schema, for regular model - based validation rules.
  *
  * Note: you can manually trigger attribute typecasting anytime invoking {@see typecastAttributes()} method:
  *
