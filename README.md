@@ -98,6 +98,7 @@ $model->setAttributes([
 ]);
 
 if ($model->validate()) {
+    var_dump($model->id); // outputs: int(123456)
     var_dump($model->price); // outputs: float(10.5)
     var_dump($model->amount); // outputs: int(14)
     var_dump($model->is_active); // outputs: bool(true)
@@ -124,7 +125,7 @@ var_dump($model->is_active); // outputs: bool(true)
 ```
 
 
-### JSON typecasting <span id="json-typecasting"></span>
+### JSON Typecasting <span id="json-typecasting"></span>
 
 This behavior allows automatic conversion of array or traversable objects into JSON string on model saving.
 For example:
@@ -208,7 +209,7 @@ $model->save();
 ```
 
 
-### DateTime typecasting <span id="datetime-typecasting"></span>
+### DateTime Typecasting <span id="datetime-typecasting"></span>
 
 This behavior allows automatic conversion of `\DateTime` instances into ISO datetime string on model saving.
 For example:
@@ -283,7 +284,7 @@ In order to convert dates to `\Carbon\Carbon` you should use following types:
 - `\yii1tech\model\typecast\TypecastBehavior::TYPE_TIMESTAMP_CARBON`
 
 
-### Custom typecasting <span id="custom-typecasting"></span>
+### Custom Typecasting <span id="custom-typecasting"></span>
 
 You may specify any custom typecasting for the attribute using a callable as a type specification at `\yii1tech\model\typecast\TypecastBehavior::$attributeTypes`.
 For example:
