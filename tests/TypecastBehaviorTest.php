@@ -3,6 +3,7 @@
 namespace yii1tech\model\typecast\test;
 
 use ArrayObject;
+use Carbon\Carbon;
 use DateTime;
 use yii1tech\model\typecast\TypecastBehavior;
 use yii1tech\model\typecast\test\data\FormWithTypecast;
@@ -174,6 +175,33 @@ class TypecastBehaviorTest extends TestCase
 
         $this->assertSame($createdDateTime->getTimestamp(), $model->created_date->getTimestamp());
         $this->assertSame($createdDateTime->getTimestamp(), $model->created_timestamp->getTimestamp());
+    }
+
+    /**
+     * @depends testDateTime
+     */
+    public function testDateTimeCarbon(): void
+    {
+        $baseBehavior = new TypecastBehavior();
+        $baseBehavior->attributeTypes = [
+            'created_date' => TypecastBehavior::TYPE_DATETIME_CARBON,
+            'created_timestamp' => TypecastBehavior::TYPE_TIMESTAMP_CARBON,
+        ];
+
+        $timestamp = time();
+
+        $model = new Item();
+        $model->created_timestamp = $timestamp;
+        $model->created_date = date('Y-m-d H:i:s', $timestamp);
+
+        $baseBehavior->attach($model);
+        $baseBehavior->typecastAttributes();
+
+        $this->assertTrue($model->created_date instanceof Carbon);
+        $this->assertTrue($model->created_timestamp instanceof Carbon);
+
+        $this->assertSame($timestamp, $model->created_date->getTimestamp());
+        $this->assertSame($timestamp, $model->created_timestamp->getTimestamp());
     }
 
     /**

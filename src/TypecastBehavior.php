@@ -3,6 +3,7 @@
 namespace yii1tech\model\typecast;
 
 use CActiveRecord;
+use Carbon\Carbon;
 use CBehavior;
 use CBooleanValidator;
 use CDbColumnSchema;
@@ -114,6 +115,14 @@ class TypecastBehavior extends CBehavior
      * Converts integer Unix timestamp into {@see \DateTime} and vice versa.
      */
     const TYPE_TIMESTAMP = 'timestamp';
+    /**
+     * Converts ISO datetime string into {@see \Carbon\Carbon} and vice versa.
+     */
+    const TYPE_DATETIME_CARBON = 'datetime-carbon';
+    /**
+     * Converts integer Unix timestamp into {@see \Carbon\Carbon} and vice versa.
+     */
+    const TYPE_TIMESTAMP_CARBON = 'timestamp-carbon';
 
     /**
      * @var array<string, string|callable>|null attribute typecast map in format: attributeName => type.
@@ -308,6 +317,26 @@ class TypecastBehavior extends CBehavior
                 }
 
                 return (new \DateTime())->setTimestamp((int) $value);
+            case self::TYPE_DATETIME_CARBON:
+                if ($value === null || $value instanceof \DateTime) {
+                    return $value;
+                }
+
+                if (!class_exists(Carbon::class)) {
+                    throw new \LogicException('Extension "nesbot/carbon" has not been installed');
+                }
+
+                return Carbon::createFromFormat('Y-m-d H:i:s', (string) $value);
+            case self::TYPE_TIMESTAMP_CARBON:
+                if ($value === null || $value instanceof \DateTime) {
+                    return $value;
+                }
+
+                if (!class_exists(Carbon::class)) {
+                    throw new \LogicException('Extension "nesbot/carbon" has not been installed');
+                }
+
+                return (new Carbon())->setTimestamp((int) $value);
             default:
                 throw new InvalidArgumentException("Unsupported attribute type '{$type}'");
         }

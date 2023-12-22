@@ -276,6 +276,12 @@ $model = Item::model()->findByPk($id);
 var_dump($model->created_at); // outputs: object(DateTime)
 ```
 
+This extension also supports [nesbot/carbon](https://packagist.org/packages/nesbot/carbon) package.
+In order to convert dates to `\Carbon\Carbon` you should use following types:
+
+- `\yii1tech\model\typecast\TypecastBehavior::TYPE_DATETIME_CARBON`
+- `\yii1tech\model\typecast\TypecastBehavior::TYPE_TIMESTAMP_CARBON`
+
 
 ### Custom typecasting <span id="custom-typecasting"></span>
 
